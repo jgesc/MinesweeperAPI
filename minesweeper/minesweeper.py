@@ -3,6 +3,7 @@ from enum import Enum
 
 class Minesweeper:
     class GameState(str, Enum):
+        FIRST = 'First Move'
         PLAYING = 'Playing'
         WIN = 'Win'
         LOSE = 'Lose'
@@ -12,6 +13,7 @@ class Minesweeper:
         UNKNOWN = -1
         EMPTY = 0
         MINE = 9
+
 
     class CellPrintChar(str, Enum):
         UNKNOWN = '?'
@@ -31,8 +33,16 @@ class Minesweeper:
         self.mine_count = mine_count
         self.cell_count = width * height
         self.hidden_cells = self.cell_count
-        self.game_state = Minesweeper.GameState.PLAYING
+        self.game_state = Minesweeper.GameState.FIRST
 
+        self.cells_mines = Npne
+        self.cells_revealed = None
+        self.cells_neighboring = None
+
+        self.init_mine_field()
+
+
+    def init_mine_field(self):
         # Create mine field
         base_cells = [True] * self.mine_count + \
             [False] * (self.cell_count - self.mine_count)
@@ -41,13 +51,13 @@ class Minesweeper:
         # Create 2D lists
         self.cells_mines = [base_cells[i*self.height:(i+1)*self.height] \
             for i in range(self.width)]
-        self.cells_revealed = [[False] * height for _ in range(width)]
+        self.cells_revealed = [[False] * self.height for _ in range(self.width)]
         self.cells_neighboring = [
             [
                 sum([self.cells_mines[x][y] for x, y in self.neighbors(x, y)])
-                for y in range(height)
+                for y in range(self.height)
             ]
-            for x in range(width)
+            for x in range(self.width)
         ]
 
 
@@ -86,6 +96,12 @@ class Minesweeper:
         ]
 
 
+    def reveal(self, x, y):
+        if not self.cells_revealed[x][y]:
+            self.cells_revealed[x][y] = True
+            self.hidden_cells -= 1
+
+
     def floodfill_empty(self, initial):
         pending = {initial}
 
@@ -94,10 +110,39 @@ class Minesweeper:
             # Pop cell
             x, y = pending.pop()
             # Set to revealed
-            self.cells_revealed[x][y] = True
+            self.reveal(x, y)
             # Add neighbors to pending set
             pending |= {
                 (x, y) for x, y in self.neighbors(x, y) if \
                 self.cells_neighboring[x][y] == Minesweeper.CellContent.EMPTY \
                 and not self.cells_revealed[x][y] \
             }
+
+
+    def is_finished(self):
+        return self.game_state in (Minesweeper.GameState.WIN,
+            Minesweeper.GameState.LOSE)
+
+
+    def open_cell(self, x, y):
+        # Check the game is not finished
+        if self.is_finished():
+            raise Exception('Game is finished')
+
+        # Ensure first action does not lose the game
+        if self.game_state == Minesweeper.GameState.FIRST:
+            while self.cells_mines[x][y]:
+                self.init_mine_field()
+            self.game_state = Minesweeper.GameState.PLAYING
+
+        # Reveal cell
+        self.reveal(x, y)
+        if self.cells_mines[x][y]:
+            self.game_state = Minesweeper.GameState.LOSE
+        else:
+            if self.cells_neighboring[x][y] == Minesweeper.CellContent.EMPTY:
+                self.floodfill_empty((x, y))
+
+        # Check victory condition
+        if self.hidden_cells == self.cell_count - self.mine_count:
+            self.game_state = Minesweeper.GameState.WIN
