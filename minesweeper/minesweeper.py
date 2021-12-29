@@ -35,7 +35,7 @@ class Minesweeper:
         self.hidden_cells = self.cell_count
         self.game_state = Minesweeper.GameState.FIRST
 
-        self.cells_mines = Npne
+        self.cells_mines = None
         self.cells_revealed = None
         self.cells_neighboring = None
 
@@ -77,9 +77,26 @@ class Minesweeper:
         print('-----')
         for x in range(self.width):
             line = ''.join(Minesweeper.CellPrintChar.MINE.value \
-                if self.cells_mines[x][i] \
+                if self.cells_mines[x][y] \
                 else Minesweeper.CellPrintChar.EMPTY.value \
-                for i in range(self.height))
+                for y in range(self.height))
+            print('\t' + line)
+        print('=====')
+
+    def print_visible_state(self):
+        print('=====')
+        print('State: %s' % repr(self.game_state.value))
+        print('-----')
+        for x in range(self.width):
+            line = ''.join(
+                (
+                    Minesweeper.CellPrintChar.MINE.value \
+                    if self.cells_mines[x][y] \
+                    else str(self.cells_neighboring[x][y]) \
+                )
+                if self.cells_revealed[x][y]
+                else Minesweeper.CellPrintChar.UNKNOWN.value
+                for y in range(self.height))
             print('\t' + line)
         print('=====')
 
