@@ -40,9 +40,41 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
 
 
     def do_POST(self):
-        global games
+        try:
+            global games
 
-        pass
+            # Check path
+            path = list(filter(bool, self.path[:].split('/')))
+            if len(path) != 1 or path[0] not in games:
+                self.send_response(404)
+                self.end_headers()
+                return
+
+            # Parse body parameters
+            id = path[0]
+            game = games[id]
+            parameters = {}
+            content_len_str = self.headers.get('Content-Length')
+            content_len = int(content_len_str) if content_len_str else 0
+
+            if content_len:
+                request_body = self.rfile.read(content_len)
+                parameters = json.loads(request_body)
+            else:
+                self.send_response(400)
+                self.end_headers()
+                return
+
+            # Perform action
+            game.open_cell(parameters['x'], parameters['y'])
+
+            # Send response
+            self.send_response(200)
+            self.end_headers()
+
+        except Exception as exception:
+            self.send_error(500, explain=repr(exception))
+            self.end_headers()
 
 
     def do_PUT(self):
@@ -96,6 +128,25 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
 
 
     def do_DELETE(self):
-        global games
+        try:
+            global games
 
-        pass
+            # Check path
+            path = list(filter(bool, self.path[:].split('/')))
+            if len(path) != 1 or path[0] not in games:
+                self.send_response(404)
+                self.end_headers()
+                return
+
+            # Build response body
+            id = path[0]
+            del games[id]
+
+            # Send response
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+
+        except Exception as exception:
+            self.send_error(500, explain=repr(exception))
+            self.end_headers()
