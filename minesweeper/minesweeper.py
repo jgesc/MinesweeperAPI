@@ -24,8 +24,8 @@ class Minesweeper:
     def __init__(self, width=10, height=10, mine_count=10):
         # Check there are not more mines than cells
         if mine_count > width * height:
-            raise ValueError('There can not be more mines than cells \
-                (got %d mines and %d total cells)' % mine_count, width * height)
+            raise ValueError('There can not be more mines than cells ' +
+                '(got %d mines and %d total cells)' % (mine_count, width * height))
 
         # Store variables
         self.width = width
@@ -83,6 +83,7 @@ class Minesweeper:
             print('\t' + line)
         print('=====')
 
+
     def print_visible_state(self):
         print('=====')
         print('State: %s' % repr(self.game_state.value))
@@ -105,7 +106,12 @@ class Minesweeper:
         return \
         [
             [
-                self.cells_neighboring[x][y] if self.cells_revealed[x][y]
+                (
+                    Minesweeper.CellContent.MINE.value \
+                    if self.cells_mines[x][y] \
+                    else self.cells_neighboring[x][y] \
+                )
+                if self.cells_revealed[x][y]
                 else Minesweeper.CellContent.UNKNOWN.value
                 for y in range(self.height)
             ]
