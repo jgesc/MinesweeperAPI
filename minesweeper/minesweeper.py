@@ -81,3 +81,15 @@ class Minesweeper:
                 for i in range(self.height))
             print('\t' + line)
         print('=====')
+
+
+    def get_visible_cells(self):
+        return \
+        [
+            [
+                self.cells_neighboring[x][y] if self.cells_revealed[x][y]
+                else Minesweeper.CellContent.UNKNOWN
+                for y in range(self.height)
+            ]
+            for x in range(self.width)
+        ]
