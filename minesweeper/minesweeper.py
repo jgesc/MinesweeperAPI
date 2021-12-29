@@ -41,31 +41,22 @@ class Minesweeper:
         # Create 2D lists
         self.cells_mines = [base_cells[i*self.height:(i+1)*self.height] \
             for i in range(self.width)]
-        self.cells_neighboring = Minesweeper.convolve(self.cells_mines)
         self.cells_revealed = [[False] * height for _ in range(width)]
+        self.cells_neighboring = [
+            [
+                sum([self.cells_mines[x][y] for x, y in self.neighbors(x, y)])
+                for y in range(height)
+            ]
+            for x in range(width)
+        ]
 
 
-    def convolve(cells):
-        # Initialize output grid
-        width = len(cells)
-        height = len(cells[0])
-        output_grid = [[0] * height for _ in range(width)]
-
-        # Perform convolution
-        for x in range(width):
-            for y in range(height):
-                sum = 0
-
-                for i in range(3):
-                    if 0 <= x-i < width:
-                        for j in range(3):
-                            if 0 <= y-j < height:
-                                sum += cells[x-i][y-j]
-
-                output_grid[x][y] = sum
-
-        # Return
-        return output_grid
+    def neighbors(self, x, y):
+        for i in range(3):
+            if 0 <= x-i < self.width:
+                for j in range(3):
+                    if 0 <= y-j < self.height:
+                        yield (x-i, y-j)
 
 
     def print_internal_state(self):
@@ -93,3 +84,20 @@ class Minesweeper:
             ]
             for x in range(self.width)
         ]
+
+
+    def floodfill_empty(self, initial):
+        pending = {initial}
+
+        # While pending cells
+        while pending:
+            # Pop cell
+            x, y = pending.pop()
+            # Set to revealed
+            self.cells_revealed[x][y] = True
+            # Add neighbors to pending set
+            pending |= {
+                (x, y) for x, y in self.neighbors(x, y) if \
+                self.cells_neighboring[x][y] == Minesweeper.CellContent.EMPTY \
+                and not self.cells_revealed[x][y] \
+            }
