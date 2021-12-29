@@ -62,9 +62,9 @@ class Minesweeper:
 
 
     def neighbors(self, x, y):
-        for i in range(3):
+        for i in range(-1, 2):
             if 0 <= x-i < self.width:
-                for j in range(3):
+                for j in range(-1, 2):
                     if 0 <= y-j < self.height:
                         yield (x-i, y-j)
 
@@ -106,7 +106,7 @@ class Minesweeper:
         [
             [
                 self.cells_neighboring[x][y] if self.cells_revealed[x][y]
-                else Minesweeper.CellContent.UNKNOWN
+                else Minesweeper.CellContent.UNKNOWN.value
                 for y in range(self.height)
             ]
             for x in range(self.width)
@@ -128,12 +128,12 @@ class Minesweeper:
             x, y = pending.pop()
             # Set to revealed
             self.reveal(x, y)
-            # Add neighbors to pending set
-            pending |= {
-                (x, y) for x, y in self.neighbors(x, y) if \
-                self.cells_neighboring[x][y] == Minesweeper.CellContent.EMPTY \
-                and not self.cells_revealed[x][y] \
-            }
+            # Add neighbors to pending set if cell is empty
+            if self.cells_neighboring[x][y] == Minesweeper.CellContent.EMPTY.value:
+                pending |= {
+                    (x, y) for x, y in self.neighbors(x, y) if \
+                    not self.cells_revealed[x][y] \
+                }
 
 
     def is_finished(self):
@@ -157,9 +157,9 @@ class Minesweeper:
         if self.cells_mines[x][y]:
             self.game_state = Minesweeper.GameState.LOSE
         else:
-            if self.cells_neighboring[x][y] == Minesweeper.CellContent.EMPTY:
+            if self.cells_neighboring[x][y] == Minesweeper.CellContent.EMPTY.value:
                 self.floodfill_empty((x, y))
 
         # Check victory condition
-        if self.hidden_cells == self.cell_count - self.mine_count:
+        if self.hidden_cells == self.mine_count:
             self.game_state = Minesweeper.GameState.WIN
