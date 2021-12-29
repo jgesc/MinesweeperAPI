@@ -81,15 +81,15 @@ optional arguments:
    * **404**: Game ID not found
    * **500**: Internal error
 
-## Examples
-### Intended game workflow
+# Examples
+## Intended game workflow
  1. Create game through PUT request, modifying the game settings if desired, obtain the game **ID**
  2. Open an unknown cell thorugh POST request on path /**ID**, sending the **x** and **y** coordinates as a JSON formatted body.
  3. Get game state through GET request. Read **state** field. If the value is neither **Win** nor **Lose**, repeat step 2.
  4. If **state** is either **Win** or **Lose**, delete the game with DELETE request on path /**ID**.
 
-### Examples with `curl`
-#### Create game
+## Examples with `curl`
+### Create game
 **Command**
 ```
 curl -XPUT -d "{\"mine_count\": 12}" http://localhost:8000/
@@ -98,7 +98,7 @@ curl -XPUT -d "{\"mine_count\": 12}" http://localhost:8000/
 ```
 {"id": "FPHPSDCL"}
 ```
-#### Interact with game
+### Interact with game
 **Command**
 ```
 curl -XPOST -d "{\"x\": 9, \"y\": 8}" http://localhost:8080/FPHPSDCL
@@ -107,7 +107,7 @@ curl -XPOST -d "{\"x\": 9, \"y\": 8}" http://localhost:8080/FPHPSDCL
 ```
 
 ```
-#### Get game state
+### Get game state
 **Command**
 ```
 curl http://localhost:8080/FPHPSDCL
@@ -116,7 +116,7 @@ curl http://localhost:8080/FPHPSDCL
 ```
 {"state": "Playing", "width": 10, "height": 10, "mine_count": 12, "board": [[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1], [-1, -1, 2, 1, 1, 2, -1, -1, -1, -1], [-1, -1, 1, 0, 0, 1, -1, -1, -1, -1], [-1, 2, 1, 0, 1, 1, -1, -1, -1, -1], [-1, 2, 0, 0, 1, -1, 2, 1, 2, -1], [-1, 2, 0, 0, 1, 1, 1, 0, 1, -1], [1, 2, 1, 1, 0, 0, 0, 0, 1, -1], [0, 1, -1, 1, 0, 0, 0, 0, 1, -1], [0, 1, 1, 1, 0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]}
 ```
-#### Delete game
+### Delete game
 **Command**
 ```
 curl -XDELETE http://localhost:8080/FPHPSDCL/
