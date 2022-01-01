@@ -6,6 +6,15 @@ from minesweeper import Minesweeper
 games = {}
 
 class MinesweeperRequestHandler(BaseHTTPRequestHandler):
+    def __init__(self, request, client_address, server):
+        super().__init__(request, client_address, server)
+        self.protocol_version = 'HTTP/1.1' # Required for Keep-Alive
+
+    def send_keep_alive_headers(self, content_length=0):
+        self.send_header('Content-length', content_length)
+        self.send_header("Connection", "keep-alive")
+        self.send_header("Keep-Alive", "timeout=30, max=30000")
+
     def do_GET(self):
         try:
             global games
@@ -14,6 +23,7 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
             path = list(filter(bool, self.path[:].split('/')))
             if len(path) != 1 or path[0] not in games:
                 self.send_response(404)
+                self.send_keep_alive_headers()
                 self.end_headers()
                 return
 
@@ -27,15 +37,18 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
                 'mine_count': game.mine_count,
                 'board': game.get_visible_cells()
             }
+            payload = json.dumps(body).encode('utf-8')
 
             # Send response
             self.send_response(200)
+            self.send_keep_alive_headers(len(payload))
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps(body).encode('utf-8'))
+            self.wfile.write(payload)
 
         except Exception as exception:
             self.send_error(500, explain=repr(exception))
+            self.send_keep_alive_headers()
             self.end_headers()
 
 
@@ -47,6 +60,7 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
             path = list(filter(bool, self.path[:].split('/')))
             if len(path) != 1 or path[0] not in games:
                 self.send_response(404)
+                self.send_keep_alive_headers()
                 self.end_headers()
                 return
 
@@ -62,6 +76,7 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
                 parameters = json.loads(request_body)
             else:
                 self.send_response(400)
+                self.send_keep_alive_headers()
                 self.end_headers()
                 return
 
@@ -70,10 +85,12 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
 
             # Send response
             self.send_response(200)
+            self.send_keep_alive_headers()
             self.end_headers()
 
         except Exception as exception:
             self.send_error(500, explain=repr(exception))
+            self.send_keep_alive_headers()
             self.end_headers()
 
 
@@ -85,6 +102,7 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
             path = list(filter(bool, self.path[:].split('/')))
             if len(path) != 0:
                 self.send_response(400)
+                self.send_keep_alive_headers()
                 self.end_headers()
                 return
 
@@ -111,11 +129,13 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
             body = {
                 'id': id
             }
+            payload = json.dumps(body).encode('utf-8')
 
             # Send response
             self.send_response(200)
+            self.send_keep_alive_headers(len(payload))
             self.end_headers()
-            self.wfile.write(json.dumps(body).encode('utf-8'))
+            self.wfile.write(payload)
 
         except Exception as exception:
             try:
@@ -124,6 +144,7 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
                 pass
             finally:
                 self.send_error(500, explain=repr(exception))
+                self.send_keep_alive_headers()
                 self.end_headers()
 
 
@@ -135,6 +156,7 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
             path = list(filter(bool, self.path[:].split('/')))
             if len(path) != 1 or path[0] not in games:
                 self.send_response(404)
+                self.send_keep_alive_headers()
                 self.end_headers()
                 return
 
@@ -144,9 +166,10 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
 
             # Send response
             self.send_response(200)
-            self.send_header('Content-type', 'application/json')
+            self.send_keep_alive_headers()
             self.end_headers()
 
         except Exception as exception:
             self.send_error(500, explain=repr(exception))
+            self.send_keep_alive_headers()
             self.end_headers()
