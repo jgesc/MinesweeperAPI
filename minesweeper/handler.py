@@ -83,10 +83,17 @@ class MinesweeperRequestHandler(BaseHTTPRequestHandler):
             # Perform action
             game.open_cell(parameters['x'], parameters['y'])
 
+            # Send new game state
+            body = {
+                'new_state': game.game_state
+            }
+            payload = json.dumps(body).encode('utf-8')
+
             # Send response
             self.send_response(200)
-            self.send_keep_alive_headers()
+            self.send_keep_alive_headers(len(payload))
             self.end_headers()
+            self.wfile.write(payload)
 
         except Exception as exception:
             self.send_error(500, explain=repr(exception))

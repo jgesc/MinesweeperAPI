@@ -50,8 +50,14 @@ optional arguments:
  * **Path arguments:** /*<GAME_ID>*
    * **GAME_ID**: ID of the game to interact with
  * **Body JSON Arguments:**
-   * **x**: X coordinate of the board (starting from 0)
-   * **y**: Y coordinate of the board (starting from 0)
+   * **x**: X coordinate of the board (width, starting from 0)
+   * **y**: Y coordinate of the board (height, starting from 0)
+ * **Returns JSON:**
+   * **new_state**: New game state. Can be one of the following
+     * **First Move**: Player has yet to make their first move
+     * **Playing**: The game has already started
+     * **Win**: Game has finished, the player has won
+     * **Lose**: Game has finished, the player has lost
  * **Status Codes:**
    * **200**: Success
    * **400**: Body JSON is mandatory
@@ -84,9 +90,9 @@ optional arguments:
 # Examples
 ## Intended game workflow
  1. Create game through PUT request, modifying the game settings if desired, obtain the game **ID**
- 2. Open an unknown cell thorugh POST request on path /**ID**, sending the **x** and **y** coordinates as a JSON formatted body.
- 3. Get game state through GET request. Read **state** field. If the value is neither **Win** nor **Lose**, repeat step 2.
- 4. If **state** is either **Win** or **Lose**, delete the game with DELETE request on path /**ID**.
+ 2. Get game state through GET request. Make a decision and open an unknown cell through POST request on path /**ID**, sending the **x** and **y** coordinates as a JSON formatted body.
+ 3. Read **new_state** field. If the value is neither **Win** nor **Lose**, repeat step 2.
+ 4. If **new_state** is either **Win** or **Lose**, delete the game with DELETE request on path /**ID**.
 
 ## Examples with `curl`
 ### Create game
@@ -105,7 +111,7 @@ curl -XPOST -d "{\"x\": 9, \"y\": 8}" http://localhost:8080/FPHPSDCL
 ```
 **Response**
 ```
-
+{"new_state": "Playing"}
 ```
 ### Get game state
 **Command**
