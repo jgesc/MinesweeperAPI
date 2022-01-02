@@ -54,7 +54,7 @@ class Minesweeper:
         self.cells_revealed = [[False] * self.height for _ in range(self.width)]
         self.cells_neighboring = [
             [
-                sum([self.cells_mines[x][y] for x, y in self.neighbors(x, y)])
+                sum([self.cells_mines[i][j] for i, j in self.neighbors(x, y)])
                 for y in range(self.height)
             ]
             for x in range(self.width)
@@ -66,7 +66,8 @@ class Minesweeper:
             if 0 <= x-i < self.width:
                 for j in range(-1, 2):
                     if 0 <= y-j < self.height:
-                        yield (x-i, y-j)
+                        if not i == j == 0:
+                            yield (x-i, y-j)
 
 
     def print_internal_state(self):
