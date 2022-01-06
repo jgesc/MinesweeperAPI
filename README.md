@@ -1,5 +1,5 @@
 # MinesweeperAPI
-Minesweeper game with controls exposed through an HTTP API for research purposes. It is written with simplicity and portability in mind and has no external dependencies, it only uses Python 3 and its standard library.
+Minesweeper game with controls exposed through an HTTP API for research purposes. It is written with simplicity and portability in mind and has no external dependencies, it only uses Python 3 and its standard library. A full usage example can be found in my [Minesweeper CSP solver](https://github.com/jgesc/Minesweeper_CSP) repository.
 
 ```
 python minesweeper --help
